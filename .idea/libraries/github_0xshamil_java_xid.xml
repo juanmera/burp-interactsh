@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="github.0xshamil.java.xid" type="repository">
+    <properties maven-id="com.github.0xshamil:java-xid:1.0.0" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/0xshamil/java-xid/1.0.0/java-xid-1.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
