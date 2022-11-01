@@ -56,13 +56,13 @@ class BurpTabbedPane : JTabbedPane() {
         val innerConfig = JPanel()
         val serverText = JTextField(Config.host, 20)
         val portText = JTextField(Config.port.toString(), 20)
-        val authText = JTextField(Config.auth, 20)
+        val authText = JTextField(Config.authorization, 20)
         val useHttpsBox = JCheckBox("", Config.useHttps)
         val serverLabel = JLabel("Host: ")
         val portLabel = JLabel("Port: ")
         val authLabel = JLabel("Authorization: ")
         val useHttpsLabel = JLabel("Use HTTPS: ")
-        val updateConfigButton = JButton("Save")
+        val saveConfigurationButton = JButton("Save")
 
         innerConfig.size = Dimension(80, 150)
         innerConfig.layout = SpringLayout()
@@ -70,14 +70,14 @@ class BurpTabbedPane : JTabbedPane() {
         portLabel.labelFor = portText
         authLabel.labelFor = authText
         useHttpsLabel.labelFor = useHttpsBox
-        updateConfigButton.addActionListener {
+        saveConfigurationButton.addActionListener {
             Config.host = serverText.text
             Config.port = try {
                 portText.text.toInt()
             } catch (ex: NumberFormatException) {
                 443
             }
-            Config.auth = authText.text
+            Config.authorization = authText.text
             Config.useHttps = useHttpsBox.isSelected
         }
 
@@ -89,7 +89,7 @@ class BurpTabbedPane : JTabbedPane() {
         innerConfig.add(authText)
         innerConfig.add(useHttpsLabel)
         innerConfig.add(useHttpsBox)
-        innerConfig.add(updateConfigButton)
+        innerConfig.add(saveConfigurationButton)
         // Add a blank panel so that SpringUtilities can make a well shaped grid
         innerConfig.add(JPanel())
         SpringUtilities.makeCompactGrid(innerConfig, 5, 2, 6, 6, 6, 6)

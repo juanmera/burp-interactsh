@@ -12,6 +12,10 @@ class BurpExtender : IBurpExtender, IExtensionStateListener, IContextMenuFactory
         lateinit var stdout: PrintWriter
         lateinit var stderr: PrintWriter
         var pollTime: Long = 0
+            set(value) {
+                field = value
+                Config.pollTime = value
+            }
         private val clients = ArrayList<Client>()
         fun addClient(c: Client) {
             clients.add(c)
@@ -31,6 +35,7 @@ class BurpExtender : IBurpExtender, IExtensionStateListener, IContextMenuFactory
         stderr = PrintWriter(callbacks.stderr, true)
         stdout.println("Starting...")
         Config.generate()
+        pollTime = Config.pollTime
         callbacks.registerExtensionStateListener(this@BurpExtender)
         callbacks.registerContextMenuFactory(this@BurpExtender)
         mainPane = BurpTabbedPane()

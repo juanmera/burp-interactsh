@@ -23,7 +23,7 @@ object Config {
         get() = loadSetting("use-https").toBoolean()
         set(value) = saveSetting("use-https", value.toString())
 
-    var auth: String
+    var authorization: String
         get() = loadSetting("authorization")
         set(value) = saveSetting("authorization", value)
 

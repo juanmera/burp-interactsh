@@ -11,7 +11,7 @@ object ClientActionListener : ActionListener {
     var running = true
     private var pollers = ArrayList<Thread>()
     override fun actionPerformed(e: ActionEvent) {
-        BurpExtender.stdout.println("Generating New Client")
+        BurpExtender.stdout.println("Generating Client")
         try {
             val c = Client()
             c.generateKeys()
@@ -36,7 +36,7 @@ object ClientActionListener : ActionListener {
             polling.start()
             TimeUnit.SECONDS.sleep(1)
             val domain = c.interactDomain
-            BurpExtender.stdout.println("New domain is: $domain")
+            BurpExtender.stdout.println("Domain: $domain")
             // Copy new client domain to clipboard
             Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(domain), null)
         } catch (ex: Exception) {

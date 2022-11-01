@@ -26,7 +26,7 @@ class Client {
     private var host = Config.host
     private var port = Config.port
     private var useHttps = Config.useHttps
-    private var authorization = Config.auth
+    private var authorization = Config.authorization
 
     fun registerClient(): Boolean {
         val pubKey = Base64.getEncoder().encodeToString(getPublicKey().toByteArray(StandardCharsets.UTF_8))
@@ -53,6 +53,7 @@ class Client {
                 
                 $registerData
                 """.trimIndent()
+            //BurpExtender.stdout.println(request)
             val response = callbacks.makeHttpRequest(host, port, useHttps, request.toByteArray(StandardCharsets.UTF_8))
             val responseInfo = BurpExtender.analyzeResponse(response)
             if (responseInfo.statusCode.toInt() == 200) {
@@ -65,14 +66,17 @@ class Client {
     }
 
     fun poll(): Boolean {
-        var request = """GET /poll?id=$correlationId&secret=$secretKey HTTP/1.1
-Host: $host
-User-Agent: Interact.sh Client
-"""
+        var request = """
+            GET /poll?id=$correlationId&secret=$secretKey HTTP/1.1
+            Host: $host
+            User-Agent: Interact.sh Client
+            
+            """.trimIndent()
         if (authorization.isNotEmpty()) {
             request += "Authorization: $authorization\r\n"
         }
         request += "Connection: close\r\n\r\n"
+        //BurpExtender.stdout.println(request)
         val response = callbacks.makeHttpRequest(host, port, useHttps, request.toByteArray(StandardCharsets.UTF_8))
         val responseInfo = BurpExtender.analyzeResponse(response)
         if (responseInfo.statusCode.toInt() != 200) {
@@ -123,6 +127,7 @@ User-Agent: Interact.sh Client
                 
                 $deregisterData
                 """.trimIndent()
+            //BurpExtender.stdout.println(request)
             callbacks.makeHttpRequest(host, port, useHttps, request.toByteArray(StandardCharsets.UTF_8))
         } catch (ex: Exception) {
             callbacks.printOutput(ex.message)
