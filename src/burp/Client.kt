@@ -53,6 +53,7 @@ class Client {
                 
                 $registerData
                 """.trimIndent()
+            //BurpExtender.stdout.println("Host $host:$port - Use HTTPS: $useHttps ")
             //BurpExtender.stdout.println(request)
             val response = callbacks.makeHttpRequest(host, port, useHttps, request.toByteArray(StandardCharsets.UTF_8))
             val responseInfo = BurpExtender.analyzeResponse(response)
@@ -135,20 +136,19 @@ class Client {
     }
 
     // Fix the string up to 33 characters
-    val interactDomain: String
-        get() = if (correlationId.isEmpty()) {
-            ""
-        } else {
-            var fullDomain: String = correlationId
-
-            // Fix the string up to 33 characters
-            val random = Random()
-            while (fullDomain.length < 33) {
-                fullDomain += (random.nextInt(26) + 'a'.code).toChar()
-            }
-            fullDomain += ".$host"
-            fullDomain
+    fun getDomain(): String {
+        if (correlationId.isEmpty()) {
+            return ""
         }
+        var fullDomain = correlationId
+
+        // Fix the string up to 33 characters
+        val random = Random()
+        while (fullDomain.length < 33) {
+            fullDomain += (random.nextInt(26) + 'a'.code).toChar()
+        }
+        return "$fullDomain.$host"
+    }
 
     fun generateKeys() {
         val kpg = KeyPairGenerator.getInstance("RSA")

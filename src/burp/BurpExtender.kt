@@ -2,7 +2,6 @@ package burp
 
 import java.awt.Component
 import java.io.PrintWriter
-import java.util.concurrent.TimeUnit
 import javax.swing.JMenuItem
 import javax.swing.SwingUtilities
 
@@ -11,15 +10,6 @@ class BurpExtender : IBurpExtender, IExtensionStateListener, IContextMenuFactory
         lateinit var callbacks: IBurpExtenderCallbacks
         lateinit var stdout: PrintWriter
         lateinit var stderr: PrintWriter
-        var pollTime: Long = 0
-            set(value) {
-                field = value
-                Config.pollTime = value
-            }
-        private val clients = ArrayList<Client>()
-        fun addClient(c: Client) {
-            clients.add(c)
-        }
 
         fun analyzeResponse(response: ByteArray): IResponseInfo {
             return callbacks.helpers.analyzeResponse(response)
@@ -33,9 +23,10 @@ class BurpExtender : IBurpExtender, IExtensionStateListener, IContextMenuFactory
         callbacks.setExtensionName("OAST")
         stdout = PrintWriter(callbacks.stdout, true)
         stderr = PrintWriter(callbacks.stderr, true)
-        stdout.println("Starting...")
-        Config.generate()
-        pollTime = Config.pollTime
+        stdout.println("Loading Extension")
+        // ClientPool needs to be initialized before Config
+        ClientPool.init()
+        Config.init()
         callbacks.registerExtensionStateListener(this@BurpExtender)
         callbacks.registerContextMenuFactory(this@BurpExtender)
         mainPane = BurpTabbedPane()
@@ -47,21 +38,14 @@ class BurpExtender : IBurpExtender, IExtensionStateListener, IContextMenuFactory
     }
 
     override fun extensionUnloaded() {
-        // Get all threads and stop them.
-        ClientActionListener.running = false
-        TimeUnit.SECONDS.sleep((pollTime + 2))
-
-        // Tell all clients to deregister
-        for (c in clients) {
-            c.deregister()
-        }
+        ClientPool.stopAll()
         stdout.println("Extension Unloaded")
     }
 
     override fun createMenuItems(invocation: IContextMenuInvocation?): MutableList<JMenuItem> {
         val menuList: MutableList<JMenuItem> = ArrayList()
         val item = JMenuItem("Generate URL")
-        item.addActionListener(ClientActionListener)
+        item.addActionListener { ClientPool.create() }
         menuList.add(item)
         return menuList
     }

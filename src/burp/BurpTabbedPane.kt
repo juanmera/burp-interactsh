@@ -30,20 +30,20 @@ class BurpTabbedPane : JTabbedPane() {
 
     private fun createLogUI(): JPanel {
         val panel = JPanel()
-        val generateURL = JButton("Generate URL")
-        val clearLog = JButton("Clear Log")
-        val pollLabel = JLabel("Poll Time: ")
-        val pollField = JTextField(Config.pollTime.toString(), 4)
-        panel.add(generateURL)
-        panel.add(clearLog)
-        panel.add(pollLabel)
-        panel.add(pollField)
+        val generateURLButton = JButton("Generate URL")
+        val clearLogButton = JButton("Clear Log")
+        val pollingIntervalLabel = JLabel("Polling Interval: ")
+        val pollingIntervalField = JTextField(Config.pollingInterval.toString(), 4)
+        panel.add(generateURLButton)
+        panel.add(clearLogButton)
+        panel.add(pollingIntervalLabel)
+        panel.add(pollingIntervalField)
 
-        generateURL.addActionListener(ClientActionListener)
-        clearLog.addActionListener { Logger.clear() }
-        pollField.addActionListener {
+        generateURLButton.addActionListener { ClientPool.create() }
+        clearLogButton.addActionListener { Logger.clear() }
+        pollingIntervalField.addActionListener {
             try {
-                BurpExtender.pollTime = pollField.text.toLong()
+                Config.pollingInterval = pollingIntervalField.text.toLong()
             } catch (_: NumberFormatException) {
             }
         }
@@ -53,47 +53,47 @@ class BurpTabbedPane : JTabbedPane() {
     private fun createConfigPanel(): JPanel {
         // Configuration pane
         val configPanel = JPanel(FlowLayout(FlowLayout.LEFT))
-        val innerConfig = JPanel()
-        val serverText = JTextField(Config.host, 20)
-        val portText = JTextField(Config.port.toString(), 20)
-        val authText = JTextField(Config.authorization, 20)
-        val useHttpsBox = JCheckBox("", Config.useHttps)
+        val innerConfigPanel = JPanel()
+        val serverField = JTextField(Config.host, 20)
+        val portField = JTextField(Config.port.toString(), 20)
+        val authorizationField = JTextField(Config.authorization, 20)
+        val useHttpsField = JCheckBox("", Config.useHttps)
         val serverLabel = JLabel("Host: ")
         val portLabel = JLabel("Port: ")
         val authLabel = JLabel("Authorization: ")
         val useHttpsLabel = JLabel("Use HTTPS: ")
         val saveConfigurationButton = JButton("Save")
 
-        innerConfig.size = Dimension(80, 150)
-        innerConfig.layout = SpringLayout()
-        serverLabel.labelFor = serverText
-        portLabel.labelFor = portText
-        authLabel.labelFor = authText
-        useHttpsLabel.labelFor = useHttpsBox
+        innerConfigPanel.size = Dimension(80, 150)
+        innerConfigPanel.layout = SpringLayout()
+        serverLabel.labelFor = serverField
+        portLabel.labelFor = portField
+        authLabel.labelFor = authorizationField
+        useHttpsLabel.labelFor = useHttpsField
         saveConfigurationButton.addActionListener {
-            Config.host = serverText.text
+            Config.host = serverField.text
             Config.port = try {
-                portText.text.toInt()
+                portField.text.toInt()
             } catch (ex: NumberFormatException) {
                 443
             }
-            Config.authorization = authText.text
-            Config.useHttps = useHttpsBox.isSelected
+            Config.authorization = authorizationField.text
+            Config.useHttps = useHttpsField.isSelected
         }
 
-        innerConfig.add(serverLabel)
-        innerConfig.add(serverText)
-        innerConfig.add(portLabel)
-        innerConfig.add(portText)
-        innerConfig.add(authLabel)
-        innerConfig.add(authText)
-        innerConfig.add(useHttpsLabel)
-        innerConfig.add(useHttpsBox)
-        innerConfig.add(saveConfigurationButton)
+        innerConfigPanel.add(serverLabel)
+        innerConfigPanel.add(serverField)
+        innerConfigPanel.add(portLabel)
+        innerConfigPanel.add(portField)
+        innerConfigPanel.add(authLabel)
+        innerConfigPanel.add(authorizationField)
+        innerConfigPanel.add(useHttpsLabel)
+        innerConfigPanel.add(useHttpsField)
+        innerConfigPanel.add(saveConfigurationButton)
         // Add a blank panel so that SpringUtilities can make a well shaped grid
-        innerConfig.add(JPanel())
-        SpringUtilities.makeCompactGrid(innerConfig, 5, 2, 6, 6, 6, 6)
-        configPanel.add(innerConfig)
+        innerConfigPanel.add(JPanel())
+        SpringUtilities.makeCompactGrid(innerConfigPanel, 5, 2, 6, 6, 6, 6)
+        configPanel.add(innerConfigPanel)
         return configPanel
     }
 }
