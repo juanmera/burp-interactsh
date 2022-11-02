@@ -19,7 +19,6 @@ import kotlin.math.ceil
 class Client {
     private var privateKey: PrivateKey? = null
     private var publicKey: PublicKey? = null
-    private val callbacks: IBurpExtenderCallbacks = BurpExtender.callbacks
     private var secretKey: String? = null
     private var correlationId: String = ""
 
@@ -55,13 +54,13 @@ class Client {
                 """.trimIndent()
             //BurpExtender.stdout.println("Host $host:$port - Use HTTPS: $useHttps ")
             //BurpExtender.stdout.println(request)
-            val response = callbacks.makeHttpRequest(host, port, useHttps, request.toByteArray(StandardCharsets.UTF_8))
-            val responseInfo = BurpExtender.analyzeResponse(response)
+            val response = Callbacks.makeHttpRequest(host, port, useHttps, request.toByteArray(StandardCharsets.UTF_8))
+            val responseInfo = Callbacks.helpers.analyzeResponse(response)
             if (responseInfo.statusCode.toInt() == 200) {
                 return true
             }
         } catch (ex: Exception) {
-            callbacks.printOutput(ex.message)
+            Callbacks.printOutput(ex.message)
         }
         return false
     }
@@ -78,10 +77,10 @@ class Client {
         }
         request += "Connection: close\r\n\r\n"
         //BurpExtender.stdout.println(request)
-        val response = callbacks.makeHttpRequest(host, port, useHttps, request.toByteArray(StandardCharsets.UTF_8))
-        val responseInfo = BurpExtender.analyzeResponse(response)
+        val response = Callbacks.makeHttpRequest(host, port, useHttps, request.toByteArray(StandardCharsets.UTF_8))
+        val responseInfo = Callbacks.helpers.analyzeResponse(response)
         if (responseInfo.statusCode.toInt() != 200) {
-            callbacks.printOutput("Poll for " + correlationId + " was unsuccessful: " + responseInfo.statusCode)
+            Callbacks.printOutput("Poll for " + correlationId + " was unsuccessful: " + responseInfo.statusCode)
             return false
         }
         val responseStr = String(response)
@@ -97,17 +96,17 @@ class Client {
                     val decryptedData = decryptData(d, key)
                     val entry = LogEntry(decryptedData)
                     Logger.addEntry(entry)
-                    callbacks.printOutput(entry.toString())
+                    Callbacks.printOutput(entry.toString())
                 }
             }
         } catch (ex: Exception) {
-            callbacks.printOutput(ex.message)
+            Callbacks.printOutput(ex.message)
         }
         return true
     }
 
     fun deregister() {
-        callbacks.printOutput("Unregistering $correlationId")
+        Callbacks.printOutput("Unregistering $correlationId")
         try {
             val deregisterData = JSONObject()
             deregisterData.put("correlation-id", correlationId)
@@ -129,9 +128,9 @@ class Client {
                 $deregisterData
                 """.trimIndent()
             //BurpExtender.stdout.println(request)
-            callbacks.makeHttpRequest(host, port, useHttps, request.toByteArray(StandardCharsets.UTF_8))
+            Callbacks.makeHttpRequest(host, port, useHttps, request.toByteArray(StandardCharsets.UTF_8))
         } catch (ex: Exception) {
-            callbacks.printOutput(ex.message)
+            Callbacks.printOutput(ex.message)
         }
     }
 

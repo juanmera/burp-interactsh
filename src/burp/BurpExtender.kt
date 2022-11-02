@@ -1,45 +1,35 @@
 package burp
 
 import java.awt.Component
-import java.io.PrintWriter
 import javax.swing.JMenuItem
 import javax.swing.SwingUtilities
 
+lateinit var Callbacks: IBurpExtenderCallbacks
+
+@Suppress("unused")
 class BurpExtender : IBurpExtender, IExtensionStateListener, IContextMenuFactory, ITab {
-    companion object {
-        lateinit var callbacks: IBurpExtenderCallbacks
-        lateinit var stdout: PrintWriter
-        lateinit var stderr: PrintWriter
-
-        fun analyzeResponse(response: ByteArray): IResponseInfo {
-            return callbacks.helpers.analyzeResponse(response)
-        }
-    }
-
     private var mainPane: Component? = null
 
     override fun registerExtenderCallbacks(cb: IBurpExtenderCallbacks) {
-        callbacks = cb
-        callbacks.setExtensionName("OAST")
-        stdout = PrintWriter(callbacks.stdout, true)
-        stderr = PrintWriter(callbacks.stderr, true)
-        stdout.println("Loading Extension")
+        Callbacks = cb
+        Callbacks.setExtensionName("OAST")
+        Callbacks.printOutput("Loading Extension")
         // ClientPool needs to be initialized before Config
         ClientPool.init()
         Config.init()
-        callbacks.registerExtensionStateListener(this@BurpExtender)
-        callbacks.registerContextMenuFactory(this@BurpExtender)
+        Callbacks.registerExtensionStateListener(this@BurpExtender)
+        Callbacks.registerContextMenuFactory(this@BurpExtender)
         mainPane = BurpTabbedPane()
 
         SwingUtilities.invokeLater {
-            callbacks.customizeUiComponent(mainPane)
-            callbacks.addSuiteTab(this@BurpExtender)
+            Callbacks.customizeUiComponent(mainPane)
+            Callbacks.addSuiteTab(this@BurpExtender)
         }
     }
 
     override fun extensionUnloaded() {
         ClientPool.stopAll()
-        stdout.println("Extension Unloaded")
+        Callbacks.printOutput("Extension Unloaded")
     }
 
     override fun createMenuItems(invocation: IContextMenuInvocation?): MutableList<JMenuItem> {

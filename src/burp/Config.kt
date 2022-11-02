@@ -13,7 +13,7 @@ object Config {
         get() = loadSetting("host")
         set(value) {
             if (value.isEmpty()) {
-                throw IllegalArgumentException("Host cannot be  empty")
+                throw IllegalArgumentException("Host cannot be empty")
             }
             saveSetting("host", value)
         }
@@ -58,13 +58,12 @@ object Config {
     }
 
     private fun saveSetting(name: String, value: String) {
-        BurpExtender.callbacks.saveExtensionSetting(SETTINGS_PREFIX + name, value)
-        BurpExtender.stdout.println("Setting $name to \"$value\"")
+        Callbacks.saveExtensionSetting(SETTINGS_PREFIX + name, value)
     }
 
     private fun loadSetting(name: String): String {
         return try {
-            BurpExtender.callbacks.loadExtensionSetting(SETTINGS_PREFIX + name)
+            Callbacks.loadExtensionSetting(SETTINGS_PREFIX + name)
         } catch (ex: NullPointerException) {
             ""
         }

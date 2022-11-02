@@ -23,13 +23,13 @@ object ClientPool {
     }
 
     fun create() {
-        BurpExtender.stdout.println("Starting new client thread")
+        Callbacks.printOutput("Starting new client thread")
         try {
             val thread = Thread(ClientRunnable())
             threads.add(thread)
             thread.start()
         } catch (ex: Exception) {
-            BurpExtender.stderr.println(ex.message)
+            Callbacks.printError(ex.message)
         }
     }
 
@@ -40,18 +40,18 @@ object ClientPool {
                 c.generateKeys()
                 if (c.registerClient()) {
                     val domain = c.getDomain()
-                    BurpExtender.stdout.println("Domain: $domain")
+                    Callbacks.printOutput("Domain: $domain")
                     // Copy domain to the clipboard
                     Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(domain), null)
-                    while (running && c.poll()) {
+                    do {
                         TimeUnit.SECONDS.sleep(pollingInterval)
-                    }
+                    } while (running && c.poll())
                     c.deregister()
                 } else {
-                    BurpExtender.stdout.println("Error registering client")
+                    Callbacks.printOutput("Error registering client")
                 }
             } catch (ex: Exception) {
-                BurpExtender.stderr.println(ex.message)
+                Callbacks.printError(ex.message)
             }
         }
     }
